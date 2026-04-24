@@ -706,7 +706,6 @@ function renderTextTile(card) {
         <span class="tile-wan-number">${card.topText}</span>
         <span class="tile-wan-face">萬</span>
       </span>
-      <span class="tile-footer">${card.face}</span>
     `;
   }
 
@@ -715,7 +714,6 @@ function renderTextTile(card) {
       <span class="tile-display tile-display-text tile-display-wind">
         <span class="tile-glyph-text wind">${card.glyph}</span>
       </span>
-      <span class="tile-footer">${card.detail}</span>
     `;
   }
 
@@ -724,7 +722,6 @@ function renderTextTile(card) {
       <span class="tile-flower-mark">${card.mark}</span>
       <span class="tile-glyph-text flower">${card.glyph}</span>
     </span>
-    <span class="tile-footer">${card.alias}</span>
   `;
 }
 
@@ -733,7 +730,6 @@ function renderGraphicTile(card) {
     <span class="tile-display tile-display-glyph ${card.displayType === "dragon" ? "tile-display-dragon-glyph" : ""}">
       <span class="tile-glyph-icon" aria-hidden="true">${card.symbol}</span>
     </span>
-    <span class="tile-footer tile-footer-placeholder" aria-hidden="true">&nbsp;</span>
   `;
 }
 
@@ -769,11 +765,7 @@ function renderBoard() {
             </span>
             <span class="card-face card-front">
               <span class="tile-band"></span>
-              <span class="tile-header">
-              <span class="tile-badge">${card.category}</span>
-              <span class="tile-alias">${card.alias}</span>
-            </span>
-            ${renderTileContent(card)}
+              ${renderTileContent(card)}
           </span>
         </span>
       </button>

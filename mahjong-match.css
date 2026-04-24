@@ -183,9 +183,9 @@ h1 {
 
 .card-front {
   position: relative;
-  justify-content: flex-start;
-  gap: 8px;
-  padding: 12px 12px 14px;
+  justify-content: center;
+  gap: 0;
+  padding: 18px 12px 14px;
   transform: rotateY(180deg);
   border: 2px solid var(--tile-accent, #cfa15b);
   background:
@@ -240,37 +240,9 @@ h1 {
   background: linear-gradient(90deg, var(--tile-accent, #cfa15b), rgba(255, 255, 255, 0.92));
 }
 
-.tile-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  align-items: start;
-  min-height: 28px;
-  margin-top: 10px;
-}
-
-.tile-badge {
-  display: inline-flex;
-  align-items: center;
-  min-height: 26px;
-  padding: 0 10px;
-  border-radius: 999px;
-  background: rgba(45, 29, 15, 0.08);
-  color: #46311d;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-
-.tile-alias {
-  font-size: 0.78rem;
-  color: #725741;
-  text-align: right;
-}
-
 .tile-display {
-  flex: 0 0 clamp(88px, 50%, 116px);
-  min-height: clamp(88px, 50%, 116px);
+  flex: 0 0 clamp(104px, 64%, 138px);
+  min-height: clamp(104px, 64%, 138px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -359,23 +331,6 @@ h1 {
 .tile-display-dragon .tile-art-svg {
   max-width: 92px;
   max-height: 98px;
-}
-
-.tile-footer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-height: 1.35rem;
-  text-align: center;
-  font-size: 0.82rem;
-  font-weight: 700;
-  line-height: 1.1;
-  color: #5c4633;
-}
-
-.tile-footer-placeholder {
-  visibility: hidden;
 }
 
 .overlay {
@@ -505,8 +460,8 @@ h1 {
   }
 
   .tile-display {
-    flex-basis: clamp(78px, 48%, 100px);
-    min-height: clamp(78px, 48%, 100px);
+    flex-basis: clamp(88px, 58%, 112px);
+    min-height: clamp(88px, 58%, 112px);
   }
 }
 
@@ -537,7 +492,7 @@ h1 {
   }
 
   .tile-display {
-    flex-basis: clamp(70px, 46%, 88px);
-    min-height: clamp(70px, 46%, 88px);
+    flex-basis: clamp(78px, 56%, 96px);
+    min-height: clamp(78px, 56%, 96px);
   }
 }
