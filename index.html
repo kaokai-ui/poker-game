@@ -3,15 +3,15 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>樸克牌翻面配對遊戲</title>
+    <title>車款翻面配對遊戲</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
     <main class="app-shell">
       <header class="topbar">
         <div>
-          <p class="eyebrow">Memory Match</p>
-          <h1>樸克牌翻面配對遊戲</h1>
+          <p class="eyebrow">Motor Match</p>
+          <h1>車款翻面配對遊戲</h1>
         </div>
         <div class="level-badge" aria-label="目前關卡">
           <span>目前關卡</span>
@@ -22,10 +22,10 @@
       <section class="game-panel" aria-labelledby="status-text">
         <div class="hud">
           <p id="status-text" class="status-text" role="status" aria-live="polite">遊戲準備中...</p>
-          <p class="pair-text">本關牌組：<span id="pair-count">2</span> 對</p>
+          <p class="pair-text">本關車組：<span id="pair-count">2</span> 對</p>
         </div>
 
-        <div id="board" class="board" aria-label="樸克牌配對區"></div>
+        <div id="board" class="board" aria-label="車款配對區"></div>
       </section>
     </main>
 
@@ -39,6 +39,10 @@
           <button id="end-btn" class="ghost" type="button">結束遊戲</button>
           <button id="restart-btn" class="hidden" type="button">重新開始</button>
         </div>
+        <section id="jump-panel" class="jump-panel hidden" aria-labelledby="jump-title">
+          <p id="jump-title" class="jump-title">快速跳關</p>
+          <div id="jump-buttons" class="jump-buttons"></div>
+        </section>
       </section>
     </div>
 
