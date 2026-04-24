@@ -5,6 +5,7 @@ const INITIAL_LEVEL = 1;
 const INITIAL_PAIR_COUNT = 2;
 const JUMP_STEP = 5;
 const MOBILE_BREAKPOINT = 768;
+const CARD_ASPECT_RATIO = 0.72;
 
 const NUMBER_WORDS = ["一", "二", "三", "四", "五", "六", "七", "八", "九"];
 const BAMBOO_COLORS = {
@@ -398,7 +399,7 @@ function getMobileColumnCount(cardCount, availableWidth, availableHeight) {
     }
 
     const rows = Math.ceil(cardCount / columns);
-    const cardHeight = cardWidth / 0.72;
+    const cardHeight = cardWidth / CARD_ASPECT_RATIO;
     const boardHeight = rows * cardHeight + gap * (rows - 1);
     chosenColumns = columns;
 
@@ -426,11 +427,14 @@ function syncBoardLayout() {
   const stageTop = boardStageElement.getBoundingClientRect().top;
   const availableHeight = Math.max(window.innerHeight - stageTop - 12, 160);
   const columns = getMobileColumnCount(cardCount, availableWidth, availableHeight);
+  const rows = Math.ceil(cardCount / columns);
+  const cardWidth = (availableWidth - gap * (columns - 1)) / columns;
+  const cardHeight = cardWidth / CARD_ASPECT_RATIO;
+  const naturalHeight = rows * cardHeight + gap * (rows - 1);
 
   boardElement.style.setProperty("--board-gap", `${gap}px`);
   boardElement.style.gridTemplateColumns = `repeat(${columns}, minmax(0, 1fr))`;
 
-  const naturalHeight = boardElement.scrollHeight;
   const scale = Math.min(1, availableHeight / naturalHeight);
   boardElement.style.transform = `scale(${scale})`;
   boardStageElement.style.height = `${naturalHeight * scale}px`;
