@@ -1,8 +1,10 @@
-const PREVIEW_SECONDS = 5;
+const INITIAL_PREVIEW_SECONDS = 5;
 const MISMATCH_DELAY_MS = 900;
 const MATCH_DELAY_MS = 450;
 const INITIAL_LEVEL = 1;
 const INITIAL_PAIR_COUNT = 2;
+const JUMP_STEP = 5;
+const MOBILE_BREAKPOINT = 768;
 
 const cardPool = [
   { rank: "A", suit: "♠", key: "AS", color: "black" },
@@ -31,6 +33,7 @@ const cardPool = [
   { rank: "9", suit: "♣", key: "9C", color: "black" }
 ];
 
+const boardStageElement = document.querySelector("#board-stage");
 const boardElement = document.querySelector("#board");
 const levelNumberElement = document.querySelector("#level-number");
 const pairCountElement = document.querySelector("#pair-count");
@@ -42,6 +45,8 @@ const continueButton = document.querySelector("#continue-btn");
 const nextLevelButton = document.querySelector("#next-level-btn");
 const endButton = document.querySelector("#end-btn");
 const restartButton = document.querySelector("#restart-btn");
+const jumpPanelElement = document.querySelector("#jump-panel");
+const jumpButtonsElement = document.querySelector("#jump-buttons");
 
 const state = {
   level: INITIAL_LEVEL,
@@ -59,9 +64,9 @@ const state = {
 function shuffle(array) {
   const copy = [...array];
 
-  for (let i = copy.length - 1; i > 0; i -= 1) {
-    const randomIndex = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[randomIndex]] = [copy[randomIndex], copy[i]];
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [copy[index], copy[randomIndex]] = [copy[randomIndex], copy[index]];
   }
 
   return copy;
@@ -77,8 +82,26 @@ function clearTimers() {
   window.clearInterval(state.countdownIntervalId);
 }
 
+function getMaxSupportedLevel() {
+  return INITIAL_LEVEL + (cardPool.length - INITIAL_PAIR_COUNT);
+}
+
+function getPairCountForLevel(level) {
+  return INITIAL_PAIR_COUNT + (level - INITIAL_LEVEL);
+}
+
+function setLevel(level) {
+  const boundedLevel = Math.min(Math.max(level, INITIAL_LEVEL), getMaxSupportedLevel());
+  state.level = boundedLevel;
+  state.pairCount = getPairCountForLevel(boundedLevel);
+}
+
 function getPlayablePoolSize() {
   return Math.min(state.pairCount, cardPool.length);
+}
+
+function getPreviewSeconds() {
+  return INITIAL_PREVIEW_SECONDS + (state.level - INITIAL_LEVEL);
 }
 
 function createDeck(pairCount) {
@@ -114,6 +137,73 @@ function getCardById(cardId) {
 function updateHeader() {
   levelNumberElement.textContent = state.level;
   pairCountElement.textContent = getPlayablePoolSize();
+}
+
+function renderJumpButtons(targetLevels) {
+  if (targetLevels.length === 0) {
+    jumpButtonsElement.innerHTML = "";
+    jumpPanelElement.classList.add("hidden");
+    return;
+  }
+
+  jumpButtonsElement.innerHTML = targetLevels.map((level) => `
+    <button type="button" data-jump-level="${level}">
+      跳到第 ${level} 關
+    </button>
+  `).join("");
+
+  jumpPanelElement.classList.remove("hidden");
+}
+
+function getMobileColumnCount(cardCount, availableWidth, availableHeight) {
+  const gap = availableWidth < 420 ? 6 : 8;
+  const maxColumns = Math.min(cardCount, availableWidth < 380 ? 6 : 8);
+  let chosenColumns = Math.min(cardCount, 2);
+
+  for (let columns = 2; columns <= maxColumns; columns += 1) {
+    const cardWidth = (availableWidth - gap * (columns - 1)) / columns;
+
+    if (cardWidth < 38) {
+      break;
+    }
+
+    const rows = Math.ceil(cardCount / columns);
+    const cardHeight = cardWidth / 0.72;
+    const boardHeight = rows * cardHeight + gap * (rows - 1);
+    chosenColumns = columns;
+
+    if (boardHeight <= availableHeight) {
+      break;
+    }
+  }
+
+  return chosenColumns;
+}
+
+function syncBoardLayout() {
+  boardElement.style.removeProperty("transform");
+  boardElement.style.removeProperty("grid-template-columns");
+  boardElement.style.removeProperty("--board-gap");
+  boardStageElement.style.removeProperty("height");
+
+  if (window.innerWidth > MOBILE_BREAKPOINT || state.cards.length === 0) {
+    return;
+  }
+
+  const cardCount = state.cards.length;
+  const gap = window.innerWidth < 420 ? 6 : 8;
+  const availableWidth = Math.max(boardStageElement.clientWidth, 220);
+  const stageTop = boardStageElement.getBoundingClientRect().top;
+  const availableHeight = Math.max(window.innerHeight - stageTop - 12, 160);
+  const columns = getMobileColumnCount(cardCount, availableWidth, availableHeight);
+
+  boardElement.style.setProperty("--board-gap", `${gap}px`);
+  boardElement.style.gridTemplateColumns = `repeat(${columns}, minmax(0, 1fr))`;
+
+  const naturalHeight = boardElement.scrollHeight;
+  const scale = Math.min(1, availableHeight / naturalHeight);
+  boardElement.style.transform = `scale(${scale})`;
+  boardStageElement.style.height = `${naturalHeight * scale}px`;
 }
 
 function renderBoard() {
@@ -153,26 +243,30 @@ function renderBoard() {
       </button>
     `;
   }).join("");
+
+  window.requestAnimationFrame(syncBoardLayout);
 }
 
 function hideOverlay() {
   overlayElement.classList.add("hidden");
   overlayElement.setAttribute("aria-hidden", "true");
+  jumpPanelElement.classList.add("hidden");
 }
 
-function showOverlay({ title, message, showContinue, showNextLevel, showEnd, showRestart }) {
+function showOverlay({ title, message, showContinue, showNextLevel, showEnd, showRestart, jumpTargets = [] }) {
   dialogTitleElement.textContent = title;
   dialogMessageElement.textContent = message;
   continueButton.classList.toggle("hidden", !showContinue);
   nextLevelButton.classList.toggle("hidden", !showNextLevel);
   endButton.classList.toggle("hidden", !showEnd);
   restartButton.classList.toggle("hidden", !showRestart);
+  renderJumpButtons(jumpTargets);
   overlayElement.classList.remove("hidden");
   overlayElement.setAttribute("aria-hidden", "false");
 }
 
 function startPreviewCountdown() {
-  let secondsLeft = PREVIEW_SECONDS;
+  let secondsLeft = getPreviewSeconds();
   setStatus(`第 ${state.level} 關：請先記住牌面，${secondsLeft} 秒後開始翻牌。`);
 
   state.countdownIntervalId = window.setInterval(() => {
@@ -203,12 +297,42 @@ function startLevel() {
   updateHeader();
   renderBoard();
   startPreviewCountdown();
-  state.previewTimeoutId = window.setTimeout(endPreviewPhase, PREVIEW_SECONDS * 1000);
+  state.previewTimeoutId = window.setTimeout(endPreviewPhase, getPreviewSeconds() * 1000);
 }
 
 function resetSelection() {
   state.firstPickId = null;
   state.secondPickId = null;
+}
+
+function getJumpTargets() {
+  const targets = [];
+  const maxSupportedLevel = getMaxSupportedLevel();
+
+  for (let level = JUMP_STEP; level <= maxSupportedLevel; level += JUMP_STEP) {
+    if (level > state.level) {
+      targets.push(level);
+    }
+  }
+
+  return targets;
+}
+
+function showLevelCompleteOverlay() {
+  const hasHigherLevel = state.level < getMaxSupportedLevel();
+  const message = hasHigherLevel
+    ? "請選擇重玩本關、增加難度、快速跳關，或結束遊戲。"
+    : "你已經到達目前最高難度，可以重玩本關或結束遊戲。";
+
+  showOverlay({
+    title: `第 ${state.level} 關完成`,
+    message,
+    showContinue: true,
+    showNextLevel: hasHigherLevel,
+    showEnd: true,
+    showRestart: false,
+    jumpTargets: hasHigherLevel ? getJumpTargets() : []
+  });
 }
 
 function handleMismatch() {
@@ -223,7 +347,7 @@ function handleMismatch() {
   resetSelection();
   state.lockBoard = false;
   renderBoard();
-  setStatus(`沒有配對成功，再試一次。`);
+  setStatus("沒有配對成功，再試一次。");
 }
 
 function handleMatch() {
@@ -242,22 +366,13 @@ function handleMatch() {
     state.lockBoard = true;
     renderBoard();
     setStatus(`第 ${state.level} 關完成。`);
-    window.setTimeout(() => {
-      showOverlay({
-        title: `第 ${state.level} 關完成`,
-        message: "請選擇要繼續遊戲、增加難度，或結束遊戲。",
-        showContinue: true,
-        showNextLevel: true,
-        showEnd: true,
-        showRestart: false
-      });
-    }, 280);
+    window.setTimeout(showLevelCompleteOverlay, 280);
     return;
   }
 
   state.lockBoard = false;
   renderBoard();
-  setStatus(`配對成功，繼續找下一對。`);
+  setStatus("配對成功，繼續找下一對。");
 }
 
 function flipCard(cardId) {
@@ -313,7 +428,8 @@ function endGame() {
       showContinue: false,
       showNextLevel: false,
       showEnd: false,
-      showRestart: true
+      showRestart: true,
+      jumpTargets: []
     });
   }, 300);
 }
@@ -328,13 +444,23 @@ boardElement.addEventListener("click", (event) => {
   onCardSelect(cardButton.dataset.cardId);
 });
 
+jumpButtonsElement.addEventListener("click", (event) => {
+  const jumpButton = event.target.closest("[data-jump-level]");
+
+  if (!jumpButton) {
+    return;
+  }
+
+  setLevel(Number(jumpButton.dataset.jumpLevel));
+  startLevel();
+});
+
 continueButton.addEventListener("click", () => {
   startLevel();
 });
 
 nextLevelButton.addEventListener("click", () => {
-  state.level += 1;
-  state.pairCount += 1;
+  setLevel(state.level + 1);
   startLevel();
 });
 
@@ -343,9 +469,13 @@ endButton.addEventListener("click", () => {
 });
 
 restartButton.addEventListener("click", () => {
-  state.level = INITIAL_LEVEL;
-  state.pairCount = INITIAL_PAIR_COUNT;
+  setLevel(INITIAL_LEVEL);
   startLevel();
 });
 
+window.addEventListener("resize", () => {
+  window.requestAnimationFrame(syncBoardLayout);
+});
+
+setLevel(INITIAL_LEVEL);
 startLevel();
