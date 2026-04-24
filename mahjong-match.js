@@ -6,6 +6,7 @@ const INITIAL_PAIR_COUNT = 2;
 const JUMP_STEP = 5;
 const MOBILE_BREAKPOINT = 768;
 const CARD_ASPECT_RATIO = 0.72;
+const MOBILE_BOTTOM_GUTTER = 28;
 
 const NUMBER_WORDS = ["一", "二", "三", "四", "五", "六", "七", "八", "九"];
 const BAMBOO_COLORS = {
@@ -411,6 +412,10 @@ function getMobileColumnCount(cardCount, availableWidth, availableHeight) {
   return chosenColumns;
 }
 
+function getViewportHeight() {
+  return window.visualViewport?.height ?? window.innerHeight;
+}
+
 function syncBoardLayout() {
   boardElement.style.removeProperty("transform");
   boardElement.style.removeProperty("grid-template-columns");
@@ -425,7 +430,9 @@ function syncBoardLayout() {
   const gap = window.innerWidth < 420 ? 6 : 8;
   const availableWidth = Math.max(boardStageElement.clientWidth, 220);
   const stageTop = boardStageElement.getBoundingClientRect().top;
-  const availableHeight = Math.max(window.innerHeight - stageTop - 12, 160);
+  const viewportHeight = getViewportHeight();
+  const bottomGutter = window.innerWidth <= 480 ? MOBILE_BOTTOM_GUTTER : 16;
+  const availableHeight = Math.max(viewportHeight - stageTop - bottomGutter, 160);
   const columns = getMobileColumnCount(cardCount, availableWidth, availableHeight);
   const rows = Math.ceil(cardCount / columns);
   const cardWidth = (availableWidth - gap * (columns - 1)) / columns;
@@ -1003,6 +1010,14 @@ restartButton.addEventListener("click", () => {
 });
 
 window.addEventListener("resize", () => {
+  window.requestAnimationFrame(syncBoardLayout);
+});
+
+window.visualViewport?.addEventListener("resize", () => {
+  window.requestAnimationFrame(syncBoardLayout);
+});
+
+window.visualViewport?.addEventListener("scroll", () => {
   window.requestAnimationFrame(syncBoardLayout);
 });
 
