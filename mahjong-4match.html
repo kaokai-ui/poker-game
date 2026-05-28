@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>麻將四對翻牌配對</title>
+    <link rel="stylesheet" href="mahjong-match.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Mahjong 4 Match</p>
+          <h1>麻將四對翻牌配對</h1>
+        </div>
+        <div class="level-badge" aria-label="目前關卡">
+          <span>目前關卡</span>
+          <strong id="level-number">1</strong>
+        </div>
+      </header>
+
+      <section class="game-panel" aria-labelledby="status-text">
+        <div class="hud">
+          <p id="status-text" class="status-text" role="status" aria-live="polite">遊戲準備中…</p>
+          <p class="pair-text">目前配對數：<span id="pair-count">4</span> 對</p>
+        </div>
+
+        <div id="board-stage" class="board-stage">
+          <div id="board" class="board" aria-label="麻將翻牌區"></div>
+        </div>
+      </section>
+    </main>
+
+    <div id="overlay" class="overlay hidden" aria-hidden="true">
+      <section class="dialog" aria-modal="true" aria-labelledby="dialog-title">
+        <h2 id="dialog-title">遊戲訊息</h2>
+        <p id="dialog-message">請選擇接下來要進行的動作。</p>
+        <div class="dialog-actions">
+          <button id="continue-btn" class="primary" type="button">繼續遊戲</button>
+          <button id="end-btn" class="ghost" type="button">結束遊戲</button>
+          <button id="restart-btn" class="hidden" type="button">重新開始</button>
+        </div>
+      </section>
+    </div>
+
+    <script src="mahjong-4match.js"></script>
+  </body>
+</html>
