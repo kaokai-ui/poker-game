@@ -62,7 +62,8 @@ const state = {
   matchedPairs: 0,
   previewTimeoutId: null,
   countdownIntervalId: null,
-  resolveTimeoutId: null
+  resolveTimeoutId: null,
+  levelCompleteTimeoutId: null
 };
 
 function shuffle(array) {
@@ -83,6 +84,7 @@ function setStatus(message) {
 function clearTimers() {
   window.clearTimeout(state.previewTimeoutId);
   window.clearTimeout(state.resolveTimeoutId);
+  window.clearTimeout(state.levelCompleteTimeoutId);
   window.clearInterval(state.countdownIntervalId);
 }
 
@@ -324,7 +326,7 @@ function handleMatch() {
     state.lockBoard = true;
     renderBoard();
     setStatus(`第 ${state.level} 關完成。`);
-    window.setTimeout(showLevelCompleteOverlay, 280);
+    state.levelCompleteTimeoutId = window.setTimeout(showLevelCompleteOverlay, 280);
     return;
   }
 
@@ -376,7 +378,6 @@ function endGame() {
   state.lockBoard = true;
   setStatus("遊戲已結束。");
 
-  window.open("", "_self");
   window.close();
 
   window.setTimeout(() => {

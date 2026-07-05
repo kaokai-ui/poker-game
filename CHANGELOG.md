@@ -25,5 +25,17 @@
 - 修正麻將版在手機瀏覽器的可視高度計算，避免底部工具列導致畫面被截掉。
 - 移除麻將版正面上的分類輔助文字，只保留真正的麻將牌面內容。
 
+## 2026-07-05
+
+### Added
+- 新增 `BUG.md`，記錄程式碼 review 發現的 bug 與重構需求。
+- 新增共用模組 `mahjong-tiles.js`，集中麻將牌池資料與牌面 SVG 繪製，供兩個麻將遊戲共用。
+
+### Changed
+- 修正兩個麻將遊戲中 `renderTileContent`、`renderBambooPip` 重複定義互相覆蓋的問題，移除約 300 行死碼。
+- 四個遊戲的過關彈窗計時器改為記錄於 `state.levelCompleteTimeoutId`，可由 `clearTimers()` 正確清除。
+- 四個遊戲的 `endGame()` 移除過時的 `window.open("", "_self")` hack，避免部分瀏覽器出現空白頁。
+- 移除 `mahjong-4match.js` 殘留的跳關／升級機制死碼，並將過關文案改為「再玩一局」。
+
 ## Notes
 - 後續若再新增功能，請依日期在下方追加新的 `Added` 或 `Changed` 區塊。
